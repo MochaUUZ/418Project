@@ -10,7 +10,23 @@ import java.util.Scanner;
 
 public class client_tcp {
     public static void main(String[] args) throws UnknownHostException, IOException {
-        Socket s = new Socket("localhost", 12250);
+        // The needed field variable for the client side
+        String server_IP;
+        int port;
+
+        if(args.length == 2)
+        {
+            server_IP = args[0];
+            port = Integer.valueOf(args[1]);
+        }
+        else
+        {
+            String errorMessage = "Error: Please use format- JavaFile <server_ip> <port>";
+            throw new IOException(errorMessage);
+        }
+        
+        // Connecting to the server
+        Socket s = new Socket(server_IP, port);
         Scanner userInput = new Scanner(System.in);
         int onOff = 1;
 
@@ -22,6 +38,7 @@ public class client_tcp {
         BufferedReader bf = new BufferedReader(in);
         String serverMessage = "";
 
+        // Loop for continue sent message to server and listen for server's reaction
         while(onOff == 1)
         {
             serverMessage = "";
@@ -35,6 +52,7 @@ public class client_tcp {
             pr.println(answerC);
             pr.flush();
 
+            // A switch that based on different command received, different operation is taken
             switch(command[0].toLowerCase())
             {
                 case "put" : 
@@ -46,6 +64,7 @@ public class client_tcp {
                     Scanner myReader = new Scanner(myObj);
                     String data = "";
                     
+                    // If the server is ready to receive data
                     if(serverMessage.equalsIgnoreCase("1"))
                     {
                         System.out.println("Awaiting server response...");
@@ -62,6 +81,7 @@ public class client_tcp {
                     }
                     else 
                     {
+                        // This happen when the server is currently not ready to receive data
                         System.out.println("server : " + serverMessage);
                     }
                     
@@ -75,7 +95,7 @@ public class client_tcp {
                 break;
 
                 case "get" :
-                    // command for get
+                    // error checking
                     if(command.length != 2)
                     {
                         System.out.println("Error in command format. Ex: get XXX.txt");
@@ -98,6 +118,7 @@ public class client_tcp {
                     }
                     else
                     {
+                        // This happen when there exist a file with the filename
                         System.out.println("Fail to download. File already exist.");
                         break;
                     }
@@ -105,6 +126,7 @@ public class client_tcp {
 
                 case "quit" : 
                     onOff = 0;
+                    s.close();
                     System.out.println("Exiting program!");
                 break;
 
@@ -113,6 +135,5 @@ public class client_tcp {
             }
         }
         userInput.close();
-        s.close();
     }
 }
